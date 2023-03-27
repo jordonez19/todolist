@@ -1,17 +1,29 @@
-const ListHeader = ({ listName }) => {
+import Modal from "./Modal";
+import { useState } from "react";
 
-    const signOut = async () => {
-        
-    }
+const ListHeader = ({ listName }) => {
+  const [openModal, setOpenModal] = useState(false);
+  const signOut = async () => {};
 
   return (
     <>
       <div className="listHeader">
         <h1> ⭐ {listName}</h1>
         <div className="button-container">
-          <button className="add-new" onClick={() => console.log('new')}>Add New</button>
-          <button className="sign-out" onClick={() => console.log('out')}>Sign Out</button>
+          <button className="create pulse" onClick={() => {setOpenModal(true)}}>
+            Add New
+          </button>
+          <button className="out pulse" onClick={() => console.log("out")}>
+            Sign Out
+          </button>
         </div>
+        {openModal ? (
+          <Modal
+            mode={'create'}
+            openModal={openModal}
+            setOpenModal={setOpenModal}
+          />
+        ) : null}
       </div>
     </>
   );
