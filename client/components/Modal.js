@@ -1,14 +1,55 @@
 import { useState } from "react";
+import { useCookies } from "react-cookie";
 
-const Modal = ({ mode, setOpenModal, task }) => {
+const Modal = ({ mode, setOpenModal, getData, task }) => {
   const editMode = mode === "edit" ? true : false;
-  console.log(task)
+  const [cookies, setCookie, removeCookie] = useCookies(null);
+  const userEmail = cookies.Email;
+
   const [form, setForm] = useState({
-    user_email: editMode ? task.user_email : "",
+    user_email: editMode ? task.user_email : userEmail,
     title: editMode ? task.title : "",
     progress: editMode ? task.progress : 50,
-    date: editMode ? "" : new Date(),
+    date: editMode ? task.date : new Date(),
   });
+
+  const postData = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`http://localhost:8000/todos/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (response.status == "200") {
+        setOpenModal(false);
+        console.log("well done");
+        getData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const editData = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch(`http://localhost:8000/todos/${task.id}`, {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (response.status == "200") {
+        setOpenModal(false);
+        console.log("well updated");
+        getData();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  console.log(form);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,7 +63,7 @@ const Modal = ({ mode, setOpenModal, task }) => {
       <div className="overlay">
         <div className="modal">
           <div className="form-title-container">
-            <h3>Let's {mode} your task</h3>
+            <h3>Lets {mode} your task</h3>
             <button onClick={() => setOpenModal(false)}>X</button>
           </div>
 
@@ -48,7 +89,11 @@ const Modal = ({ mode, setOpenModal, task }) => {
               onChange={handleChange}
               required
             />
-            <input className={mode} type={"submit"} />
+            <input
+              className={mode}
+              type={"submit"}
+              onClick={editMode ? editData : postData}
+            />
           </form>
         </div>
       </div>
